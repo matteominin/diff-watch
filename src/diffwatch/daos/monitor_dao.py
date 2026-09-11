@@ -40,13 +40,26 @@ class MonitorDAO:
     def get_by_id(self, monitor_id: UUID) -> Optional[Monitor]:
             query = "SELECT * FROM monitors WHERE id = %s"
             with self.conn.cursor(row_factory=class_row(Monitor)) as cur:
-                cur.execute(query, (monitor_id,));
+                cur.execute(query, (monitor_id,))
                 return cur.fetchone()
 
     def get_by_user_id(self, user_id: UUID) -> list[Monitor]:
         query = "SELECT * FROM monitors WHERE user_id = %s"
         with self.conn.cursor(row_factory=class_row(Monitor)) as cur:
-            cur.execute(query, (user_id,));
+            cur.execute(query, (user_id,))
+            return cur.fetchall()
+
+    def get_waiting_monitors(self, limit: int = 100) -> list[Monitor]:
+        query = """
+            SELECT * FROM monitors
+            WHERE is_active = TRUE AND next_check_at <= NOW()
+            ORDER BY next_check_at ASC
+            LIMIT %s
+            FOR UPDATE SKIP LOCKED;
+        """
+
+        with self.conn.cursor(row_factory=class_row(Monitor)) as cur:
+            cur.execute(query, (limit,))
             return cur.fetchall()
 
     def update(
