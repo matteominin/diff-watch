@@ -6,6 +6,7 @@ from pydantic import BaseModel, HttpUrl, field_serializer
 class Monitor(BaseModel):
     id: Optional[UUID] = None
     user_id: UUID
+    name: str
     url: HttpUrl
     selector: str = ""
     hash: Optional[str] = None

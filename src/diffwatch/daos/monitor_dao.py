@@ -11,15 +11,16 @@ class MonitorDAO:
         self.conn = conn
 
     def create(self, monitor_in: Monitor) -> UUID:
-        query = """INSERT INTO monitors (user_id, url, selector, check_freq, next_check_at, is_active, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        query = """INSERT INTO monitors (user_id, name, url, selector, check_freq, next_check_at, is_active, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
         """
-        with self.conn.cursor() as cur:
+        with self.conn.cursor(row_factory=class_row(UUID)) as cur:
             cur.execute(
                 query,
                 (
                     monitor_in.user_id,
+                    monitor_in.name,
                     str(monitor_in.url),
                     monitor_in.selector,
                     monitor_in.check_freq,
@@ -29,7 +30,12 @@ class MonitorDAO:
                 )
             )
 
-            return cur.fetchone()
+            uuid = cur.fetchone()
+
+            if not uuid:
+                raise Exception("Insert statement executed but returned no ID.")
+
+            return uuid
 
     def get_by_id(self, monitor_id: UUID) -> Optional[Monitor]:
             query = "SELECT * FROM monitors WHERE id = %s"
@@ -46,6 +52,7 @@ class MonitorDAO:
     def update(
         self, 
         monitor_id: UUID,
+        name: Optional[str] = None,
         selector: Optional[str] = None,
         hash: Optional[str] = None,
         check_freq: Optional[int] = None,
@@ -55,7 +62,8 @@ class MonitorDAO:
     ) -> Optional[Monitor]:
         query = """
             UPDATE monitors
-            SET selector = COALESCE(%s, selector),
+            SET name = COALESCE(%s, name),
+                selector = COALESCE(%s, selector),
                 hash = COALESCE(%s, hash),
                 check_freq = COALESCE(%s, check_freq),
                 next_check_at = COALESCE(%s, next_check_at),
@@ -67,7 +75,8 @@ class MonitorDAO:
         with self.conn.cursor(row_factory=class_row(Monitor)) as cur:
             cur.execute(
                 query,
-                (
+                (   
+                    name,
                     selector,
                     hash,
                     check_freq,

@@ -16,7 +16,7 @@ class CheckResult():
     hash: str | None = None
     error: str | None = None
 
-def check(url: str, selector: str) -> str:
+def check(url: str, selector: str) -> CheckResult:
     try: 
         res = httpx.get(url, follow_redirects=True, 
             timeout=10.0, headers={"User-Agent": "diffwatch/0.1"})
