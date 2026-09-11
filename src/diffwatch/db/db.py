@@ -1,5 +1,5 @@
 import psycopg
-from config.settings import settings
+from diffwatch.config.settings import settings
 
 _connection: psycopg.Connection | None = None
 

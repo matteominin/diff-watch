@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from src.db.db import get_db_connection
-from src.daos.monitor_dao import MonitorDAO
-from src.core.checker import check, CheckStatus
+from diffwatch.db.db import get_db_connection
+from diffwatch.daos.monitor_dao import MonitorDAO
+from diffwatch.core.checker import check, CheckStatus
 
 def main():
     conn = get_db_connection()
