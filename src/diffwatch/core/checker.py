@@ -16,7 +16,21 @@ class CheckResult():
     hash: str | None = None
     error: str | None = None
 
-def check(url: str, selector: str) -> CheckResult:
+def compute_hash(text: bytes) -> str:
+    return hashlib.sha256(text).hexdigest()
+
+def parse_and_hash(html: str, selector: str) -> CheckResult:
+    tree = LexborHTMLParser(html)
+    tree.strip_tags(['head', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes'])
+    node = tree.css_first(selector) if selector else tree
+
+    if node is None:
+        return CheckResult(status=CheckStatus.SELECTOR_NOT_FOUND)
+
+    text = node.text(strip=True)
+    return CheckResult(status=CheckStatus.OK, hash=compute_hash(text.encode()))
+
+def check(url: str, selector: str = 'body') -> CheckResult:
     try: 
         res = httpx.get(url, follow_redirects=True, 
             timeout=10.0, headers={"User-Agent": "diffwatch/0.1"})
@@ -28,12 +42,4 @@ def check(url: str, selector: str) -> CheckResult:
     if 400 <= res.status_code <= 599:
         return CheckResult(status=CheckStatus.HTTP_ERROR, error=f"HTTP {res.status_code}")
 
-    tree = LexborHTMLParser(res.text)
-    tree.strip_tags(['head', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes'])
-    node = tree.css_first(selector) if selector else tree
-
-    if node is None:
-        return CheckResult(status=CheckStatus.SELECTOR_NOT_FOUND)
-
-    text = node.text(strip=True)
-    return CheckResult(status=CheckStatus.OK, hash=hashlib.sha256(text.encode()).hexdigest())
+    return parse_and_hash(res.text, selector)
