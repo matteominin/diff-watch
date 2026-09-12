@@ -36,6 +36,12 @@ def upgrade() -> None:
             (1, 'Free', 0, 1, 60, 2),
             (2, 'Pro', 990, 5, 5, 100)
         ON CONFLICT (id) DO NOTHING;
+
+        SELECT setval(
+            pg_get_serial_sequence('plans', 'id'),
+            COALESCE((SELECT MAX(id) FROM plans), 1),
+            TRUE
+        );
     """)
 
 
