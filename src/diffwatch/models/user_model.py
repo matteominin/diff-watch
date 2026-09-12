@@ -1,13 +1,12 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, HttpUrl, field_serializer
+from pydantic import BaseModel, EmailStr, field_serializer
 
 class User(BaseModel):
     id: Optional[UUID] = None
     email: EmailStr
     name: Optional[str] = None
-    image: Optional[HttpUrl | str] = None
     plan_id: int = 1
     created_at: datetime
 

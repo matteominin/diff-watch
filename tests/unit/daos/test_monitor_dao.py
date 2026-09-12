@@ -14,8 +14,8 @@ def insert_test_data(db_conn):
     now = datetime.now(timezone.utc)
 
     # Create Users 
-    user1 = User(id=uuid4(), email=f"user1-{uuid4()}@example.com", name="user 1", image=None, plan_id=1, created_at=now)
-    user2 = User(id=uuid4(), email=f"user2-{uuid4()}@example.com", name="user 2", image=None, plan_id=1, created_at=now)
+    user1 = User(id=uuid4(), email=f"user1-{uuid4()}@example.com", name="user 1", plan_id=1, created_at=now)
+    user2 = User(id=uuid4(), email=f"user2-{uuid4()}@example.com", name="user 2", plan_id=1, created_at=now)
 
     with db_conn.cursor() as cur:
         cur.execute("INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s);", (user1.id, user1.email, user1.name, user1.plan_id, user1.created_at))
@@ -56,7 +56,7 @@ def test_get_waiting_monitors(db_conn, insert_test_data):
     returned_ids = {m.id for m in results}
     assert returned_ids == req_ids
 
-def test_create_monitor(db_conn, insert_test_data):
+def test_create(db_conn, insert_test_data):
     user = insert_test_data["users"][0]
     now = insert_test_data["now"]
     monitor = Monitor(
