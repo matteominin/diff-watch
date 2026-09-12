@@ -1,7 +1,7 @@
 """create monitors table
 
 Revision ID: 5a97c92a63e1
-Revises: 
+Revises: 1798f9b38e38
 Create Date: 2026-09-11 17:01:46.952824
 
 """

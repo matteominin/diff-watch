@@ -1,7 +1,7 @@
 """create plans table
 
 Revision ID: c73a95b272b4
-Revises: 1798f9b38e38
+Revises:
 Create Date: 2026-09-11 17:13:10.700762
 
 """

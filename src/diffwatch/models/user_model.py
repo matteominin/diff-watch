@@ -1,0 +1,18 @@
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+from pydantic import BaseModel, EmailStr, HttpUrl, field_serializer
+
+class User(BaseModel):
+    id: Optional[UUID] = None
+    email: EmailStr
+    name: Optional[str] = None
+    image: Optional[HttpUrl | str] = None
+    plan_id: int = 1
+    created_at: datetime
+
+    @field_serializer("created_at")
+    def serialize_datetime(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        return dt.isoformat()

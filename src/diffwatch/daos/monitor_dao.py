@@ -3,7 +3,7 @@ from uuid import UUID
 from datetime import datetime
 
 from psycopg import Connection
-from psycopg.rows import class_row
+from psycopg.rows import class_row, scalar_row
 from ..models.monitor_model import Monitor
 
 class MonitorDAO:
@@ -15,7 +15,7 @@ class MonitorDAO:
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
         """
-        with self.conn.cursor(row_factory=class_row(UUID)) as cur:
+        with self.conn.cursor(row_factory=scalar_row) as cur:
             cur.execute(
                 query,
                 (
@@ -83,7 +83,7 @@ class MonitorDAO:
                 is_active = COALESCE(%s, is_active),
                 last_checked_at = COALESCE(%s, last_checked_at)
             WHERE id = %s
-            RETURNING id, user_id, url, selector, hash, check_freq, next_check_at, is_active, last_checked_at, created_at;
+            RETURNING id, user_id, name, url, selector, hash, check_freq, next_check_at, is_active, last_checked_at, created_at;
         """
         with self.conn.cursor(row_factory=class_row(Monitor)) as cur:
             cur.execute(

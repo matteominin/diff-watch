@@ -8,11 +8,10 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "alembic>=1.19.2",
     "boto3>=1.43.92",
     "httpx>=0.28.1",
     "psycopg[binary]>=3.3.5",
-    "pydantic>=2.13.5",
+    "pydantic[email]>=2.13.5",
     "pydantic-settings>=2.15.0",
     "selectolax>=0.4.11",
 ]
@@ -26,6 +25,8 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "alembic>=1.19.2",
     "pytest>=9.1.1",
     "respx>=0.23.1",
+    "testcontainers[postgres]>=4.15.0",
 ]
