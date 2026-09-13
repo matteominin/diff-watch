@@ -15,6 +15,7 @@ class CheckResult():
     status: CheckStatus
     hash: str | None = None
     error: str | None = None
+    http_status_code: int | None = None
 
 def compute_hash(text: bytes) -> str:
     return hashlib.sha256(text).hexdigest()
@@ -38,8 +39,18 @@ def check(url: str, selector: str = 'body') -> CheckResult:
         return CheckResult(status=CheckStatus.HTTP_ERROR, error=str(e))
 
     if res.status_code in (401, 403, 429):
-        return CheckResult(status=CheckStatus.BLOCKED, error=f"HTTP status: {res.status_code}")
+        return CheckResult(
+            status=CheckStatus.BLOCKED,
+            error=f"HTTP status: {res.status_code}",
+            http_status_code=res.status_code,
+        )
     if 400 <= res.status_code <= 599:
-        return CheckResult(status=CheckStatus.HTTP_ERROR, error=f"HTTP {res.status_code}")
+        return CheckResult(
+            status=CheckStatus.HTTP_ERROR,
+            error=f"HTTP {res.status_code}",
+            http_status_code=res.status_code,
+        )
 
-    return parse_and_hash(res.text, selector)
+    result = parse_and_hash(res.text, selector)
+    result.http_status_code = res.status_code
+    return result

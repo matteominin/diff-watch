@@ -23,6 +23,18 @@ def test_selector_not_found():
     assert res.hash is None
 
 @respx.mock
+def test_check_success_includes_http_status_code():
+    URL = "http://test.com"
+    mocked_fetch = respx.get(URL).mock(
+        return_value=httpx.Response(200, text="<body>content</body>")
+    )
+    res = check(URL)
+
+    assert mocked_fetch.called
+    assert res.status == CheckStatus.OK
+    assert res.http_status_code == 200
+
+@respx.mock
 def test_check_http_error():
     URL = "http://test.com"
     mocked_fetch = respx.get(URL).mock(return_value=httpx.Response(500))
@@ -31,6 +43,7 @@ def test_check_http_error():
     assert mocked_fetch.called
     assert res.status == CheckStatus.HTTP_ERROR
     assert res.error is not None
+    assert res.http_status_code == 500
 
 @respx.mock
 def test_check_blocked_error():
@@ -41,3 +54,4 @@ def test_check_blocked_error():
     assert mocked_fetch.called
     assert res.status == CheckStatus.BLOCKED
     assert res.error is not None
+    assert res.http_status_code == 401
