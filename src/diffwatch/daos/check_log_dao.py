@@ -3,6 +3,7 @@ from uuid import UUID
 
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
+from datetime import datetime, timedelta
 
 from diffwatch.models.check_log_model import CheckLog
 
@@ -67,3 +68,14 @@ class CheckLogDAO:
         with self.conn.cursor(row_factory=class_row(CheckLog)) as cur:
             cur.execute(query, (monitor_id,))
             return cur.fetchall()
+
+    def count_notifications_since(self, user_id: UUID, start_date: datetime) -> int:
+        query = """
+            SELECT COUNT(*) FROM check_logs
+            WHERE user_id = %s AND created_at >= %s
+            AND has_notified = True
+        """
+
+        with self.conn.cursor(row_factory=scalar_row) as cur:
+            cur.execute(query, (user_id, start_date))
+            return cur.fetchone() or 0

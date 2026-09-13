@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
+from psycopg.errors import UniqueViolation
 
 from diffwatch.daos.user_subscription_dao import UserSubscriptionDAO
 from diffwatch.models.user_subscription_model import UserSubscription
@@ -58,7 +59,7 @@ def test_get_by_id_returns_none_for_unknown_subscription(db_conn):
     assert result is None
 
 
-def test_get_by_user_id(db_conn, subscription_dependencies):
+def test_get_active_plan_by_user_id(db_conn, subscription_dependencies):
     user_id, plan_id = subscription_dependencies
     dao = UserSubscriptionDAO(db_conn)
     subscription = UserSubscription(
@@ -68,10 +69,49 @@ def test_get_by_user_id(db_conn, subscription_dependencies):
     )
     dao.create(subscription)
 
-    results = dao.get_by_user_id(user_id)
+    plan = dao.get_active_plan_by_user_id(user_id)
 
-    assert len(results) == 1
-    assert results[0].user_id == user_id
+    assert plan is not None
+    assert plan.id == plan_id
+    assert plan.name == "Free"
+
+
+def test_get_active_plan_by_user_id_returns_none_for_ended_subscription(db_conn, subscription_dependencies):
+    user_id, plan_id = subscription_dependencies
+    dao = UserSubscriptionDAO(db_conn)
+    subscription_id = dao.create(
+        UserSubscription(
+            user_id=user_id,
+            plan_id=plan_id,
+            started_at=datetime.now(timezone.utc),
+        )
+    )
+    dao.end(subscription_id, datetime.now(timezone.utc))
+
+    plan = dao.get_active_plan_by_user_id(user_id)
+
+    assert plan is None
+
+
+def test_only_one_active_subscription_per_user(db_conn, subscription_dependencies):
+    user_id, plan_id = subscription_dependencies
+    dao = UserSubscriptionDAO(db_conn)
+    dao.create(
+        UserSubscription(
+            user_id=user_id,
+            plan_id=plan_id,
+            started_at=datetime.now(timezone.utc),
+        )
+    )
+
+    with pytest.raises(UniqueViolation):
+        dao.create(
+            UserSubscription(
+                user_id=user_id,
+                plan_id=plan_id,
+                started_at=datetime.now(timezone.utc),
+            )
+        )
 
 
 def test_end_subscription(db_conn, subscription_dependencies):

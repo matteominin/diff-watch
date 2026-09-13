@@ -5,6 +5,7 @@ from uuid import UUID
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
+from src.diffwatch.models.plan_model import Plan
 from src.diffwatch.models.user_subscription_model import UserSubscription
 
 
@@ -49,11 +50,16 @@ class UserSubscriptionDAO:
             cur.execute(query, (subscription_id,))
             return cur.fetchone()
 
-    def get_by_user_id(self, user_id: UUID) -> list[UserSubscription]:
-        query = "SELECT * FROM user_subscription WHERE user_id = %s"
-        with self.conn.cursor(row_factory=class_row(UserSubscription)) as cur:
+    def get_active_plan_by_user_id(self, user_id: UUID) -> Optional[Plan]:
+        query = """
+            SELECT p.*
+            FROM plans AS p
+            JOIN user_subscription AS us ON us.plan_id = p.id
+            WHERE us.user_id = %s AND us.is_active = TRUE
+        """
+        with self.conn.cursor(row_factory=class_row(Plan)) as cur:
             cur.execute(query, (user_id,))
-            return cur.fetchall()
+            return cur.fetchone()
 
     def end(self, subscription_id: int, ended_at: datetime) -> bool:
         query = """
