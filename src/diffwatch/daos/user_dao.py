@@ -11,7 +11,7 @@ class UserDAO:
 
     def create(self, user: User) -> UUID:
         query = """
-            INSERT INTO users (email, name, plan_id, created_at)
+            INSERT INTO users (name, email, plan_id, created_at)
             VALUES (%s, %s, %s, %s)
             RETURNING id;
         """
