@@ -14,12 +14,12 @@ def insert_test_data(db_conn):
     now = datetime.now(timezone.utc)
 
     # Create Users 
-    user1 = User(id=uuid4(), email=f"user1-{uuid4()}@example.com", name="user 1", plan_id=1, created_at=now)
-    user2 = User(id=uuid4(), email=f"user2-{uuid4()}@example.com", name="user 2", plan_id=1, created_at=now)
+    user1 = User(id=uuid4(), email=f"user1-{uuid4()}@example.com", name="user 1", created_at=now)
+    user2 = User(id=uuid4(), email=f"user2-{uuid4()}@example.com", name="user 2", created_at=now)
 
     with db_conn.cursor() as cur:
-        cur.execute("INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s);", (user1.id, user1.email, user1.name, user1.plan_id, user1.created_at))
-        cur.execute("INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s);", (user2.id, user2.email, user2.name, user2.plan_id, user2.created_at))
+        cur.execute("INSERT INTO users (id, email, name, created_at) VALUES (%s, %s, %s, %s);", (user1.id, user1.email, user1.name, user1.created_at))
+        cur.execute("INSERT INTO users (id, email, name, created_at) VALUES (%s, %s, %s, %s);", (user2.id, user2.email, user2.name, user2.created_at))
 
     assert user1.id is not None
     assert user2.id is not None

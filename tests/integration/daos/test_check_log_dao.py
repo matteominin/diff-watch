@@ -18,8 +18,8 @@ def check_log_dependencies(db_conn):
 
     with db_conn.cursor() as cur:
         cur.execute(
-            "INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, f"user@example.com", "Test user", 1, now),
+            "INSERT INTO users (id, email, name, created_at) VALUES (%s, %s, %s, %s)",
+            (user_id, f"user@example.com", "Test user", now),
         )
         cur.execute(
             """
@@ -54,8 +54,8 @@ def notification_count_dependencies(db_conn, check_log_dependencies):
 
     with db_conn.cursor() as cur:
         cur.execute(
-            "INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s)",
-            (other_user_id, "other@example.com", "Other user", 1, FIXED_NOW),
+            "INSERT INTO users (id, email, name, created_at) VALUES (%s, %s, %s, %s)",
+            (other_user_id, "other@example.com", "Other user", FIXED_NOW),
         )
         cur.execute(
             """

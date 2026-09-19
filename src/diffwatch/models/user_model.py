@@ -7,7 +7,6 @@ class User(BaseModel):
     id: Optional[UUID] = None
     email: EmailStr
     name: Optional[str] = None
-    plan_id: int = 1
     created_at: datetime
 
     @field_serializer("created_at")

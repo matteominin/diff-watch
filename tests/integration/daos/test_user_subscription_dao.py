@@ -13,8 +13,8 @@ def subscription_dependencies(db_conn):
     with db_conn.cursor() as cur:
         user_id = uuid4()
         cur.execute(
-            "INSERT INTO users (id, email, name, plan_id, created_at) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, "user@example.com", "Test user", 1, datetime.now(timezone.utc)),
+            "INSERT INTO users (id, email, name, created_at) VALUES (%s, %s, %s, %s)",
+            (user_id, "user@example.com", "Test user", datetime.now(timezone.utc)),
         )
 
     return user_id, 1

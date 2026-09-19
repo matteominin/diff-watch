@@ -11,8 +11,8 @@ class UserDAO:
 
     def create(self, user: User) -> UUID:
         query = """
-            INSERT INTO users (name, email, plan_id, created_at)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO users (name, email, created_at)
+            VALUES (%s, %s, %s)
             RETURNING id;
         """
         with self.conn.cursor(row_factory=scalar_row) as cur:
@@ -21,7 +21,6 @@ class UserDAO:
                 (
                     user.name,
                     user.email,
-                    user.plan_id,
                     user.created_at
                 )
             )
@@ -39,18 +38,3 @@ class UserDAO:
         with self.conn.cursor(row_factory=class_row(User)) as cur:
             cur.execute(query, (id, ))
             return cur.fetchone()
-
-    def update_plan(self, user_id: UUID, plan_id: int) -> bool:
-        query = """
-            UPDATE users
-            SET plan_id = %s
-            WHERE id = %s;
-        """
-
-        with self.conn.cursor() as cur:
-            cur.execute(
-                query,
-                (plan_id, user_id)
-            )
-
-            return cur.rowcount > 0
