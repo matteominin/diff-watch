@@ -2,9 +2,9 @@ import pytest
 from datetime import datetime
 from uuid import uuid4
 
-from src.diffwatch.models.plan_model import Plan
-from src.diffwatch.models.user_model import User
-from src.diffwatch.daos.user_dao import UserDAO
+from diffwatch.models.plan_model import Plan
+from diffwatch.models.user_model import User
+from diffwatch.daos.user_dao import UserDAO
 
 @pytest.fixture
 def insert_users(db_conn):

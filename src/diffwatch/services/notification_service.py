@@ -1,10 +1,10 @@
 from uuid import UUID
 from datetime import datetime, timezone, timedelta
 
-from src.diffwatch.models.monitor_model import Monitor
+from diffwatch.models.monitor_model import Monitor
 
-from src.diffwatch.daos.user_subscription_dao import UserSubscriptionDAO
-from src.diffwatch.daos.check_log_dao import CheckLogDAO
+from diffwatch.daos.user_subscription_dao import UserSubscriptionDAO
+from diffwatch.daos.check_log_dao import CheckLogDAO
 
 class NotificationService:
     def __init__(self, subscription_dao: UserSubscriptionDAO, log_dao: CheckLogDAO) -> None:

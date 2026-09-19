@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from src.diffwatch.models.user_model import User
+from diffwatch.models.user_model import User
 
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row

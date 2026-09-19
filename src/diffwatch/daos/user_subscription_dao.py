@@ -5,8 +5,8 @@ from uuid import UUID
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
-from src.diffwatch.models.plan_model import Plan
-from src.diffwatch.models.user_subscription_model import UserSubscription
+from diffwatch.models.plan_model import Plan
+from diffwatch.models.user_subscription_model import UserSubscription
 
 
 class UserSubscriptionDAO:

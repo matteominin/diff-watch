@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.diffwatch.config.settings import settings
+from diffwatch.config.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,13 +1,13 @@
 from datetime import datetime, timezone, timedelta
 
-from src.diffwatch.models.monitor_model import Monitor
-from src.diffwatch.models.check_log_model import CheckLog
-from src.diffwatch.core.checker import check, CheckStatus
+from diffwatch.models.monitor_model import Monitor
+from diffwatch.models.check_log_model import CheckLog
+from diffwatch.core.checker import check, CheckStatus
 
-from src.diffwatch.daos.monitor_dao import MonitorDAO
-from src.diffwatch.daos.check_log_dao import CheckLogDAO
+from diffwatch.daos.monitor_dao import MonitorDAO
+from diffwatch.daos.check_log_dao import CheckLogDAO
 
-from src.diffwatch.services.notification_service import NotificationService
+from diffwatch.services.notification_service import NotificationService
 
 class MonitorService:
     def __init__(self, monitor_dao: MonitorDAO, notification_service: NotificationService,log_dao: CheckLogDAO) -> None:

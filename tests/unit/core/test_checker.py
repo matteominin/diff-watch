@@ -1,7 +1,7 @@
 from pathlib import Path
 import respx
 import httpx
-from src.diffwatch.core.checker import CheckStatus, parse_and_hash, compute_hash, check
+from diffwatch.core.checker import CheckStatus, parse_and_hash, compute_hash, check
 
 FIXTURE_DIR = Path(__file__).parent.parent.parent / "fixtures" / "html_samples"
 def _load_fixture(filename: str) -> str:

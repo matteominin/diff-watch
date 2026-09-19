@@ -3,7 +3,7 @@ from typing import Optional
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
-from src.diffwatch.models.plan_model import Plan
+from diffwatch.models.plan_model import Plan
 
 
 class PlanDAO:
