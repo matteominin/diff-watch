@@ -3,10 +3,10 @@ from uuid import UUID
 
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from diffwatch.models.check_log_model import CheckLog
-
+from diffwatch.core.exceptions import DiffWatchError
 
 class CheckLogDAO:
     def __init__(self, conn: Connection):
@@ -49,7 +49,7 @@ class CheckLogDAO:
             check_log_id = cur.fetchone()
 
             if check_log_id is None:
-                raise Exception("Insert statement executed but returned no ID.")
+                raise DiffWatchError("Insert statement executed but returned no ID.")
 
             return check_log_id
 

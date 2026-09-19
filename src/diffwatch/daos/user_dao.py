@@ -5,6 +5,8 @@ from diffwatch.models.user_model import User
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
+from diffwatch.core.exceptions import DiffWatchError
+
 class UserDAO:
     def __init__(self, conn: Connection):
         self.conn = conn
@@ -28,7 +30,7 @@ class UserDAO:
             uuid = cur.fetchone()
 
             if not uuid:
-                raise Exception("Insert statement executed but returned no ID.")
+                raise DiffWatchError("Insert statement executed but returned no ID.")
 
             return uuid
 

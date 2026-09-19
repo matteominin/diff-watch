@@ -4,7 +4,9 @@ from datetime import datetime
 
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
-from ..models.monitor_model import Monitor
+
+from diffwatch.core.exceptions import DiffWatchError
+from diffwatch.models.monitor_model import Monitor
 
 class MonitorDAO:
     def __init__(self, conn: Connection):
@@ -33,7 +35,7 @@ class MonitorDAO:
             uuid = cur.fetchone()
 
             if not uuid:
-                raise Exception("Insert statement executed but returned no ID.")
+                raise DiffWatchError("Insert statement executed but returned no ID.")
 
             return uuid
 

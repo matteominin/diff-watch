@@ -5,6 +5,8 @@ from uuid import UUID
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
+from diffwatch.core.exceptions import DiffWatchError
+
 from diffwatch.models.plan_model import Plan
 from diffwatch.models.user_subscription_model import UserSubscription
 
@@ -40,7 +42,7 @@ class UserSubscriptionDAO:
             subscription_id = cur.fetchone()
 
             if subscription_id is None:
-                raise Exception("Insert statement executed but returned no ID.")
+                raise DiffWatchError("Insert statement executed but returned no ID.")
 
             return subscription_id
 

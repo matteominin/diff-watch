@@ -26,6 +26,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "alembic>=1.19.2",
+    "pyright>=1.1.414",
     "pytest>=9.1.1",
     "respx>=0.23.1",
     "testcontainers[postgres]>=4.15.0",

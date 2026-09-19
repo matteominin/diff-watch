@@ -72,7 +72,7 @@ def test_process_monitor_detects_change(monitor_service, sample_monitor, notific
     changed_html = original_html.replace("49.99", "59.99")
     sample_monitor.selector = "#product-price"
     sample_monitor.hash = parse_and_hash(original_html, sample_monitor.selector).hash
-    notification_service.should_and_send_notification.return_value = True
+    notification_service.notify.return_value = True
 
     with respx.mock:
         respx.get(str(sample_monitor.url)).mock(
@@ -81,7 +81,7 @@ def test_process_monitor_detects_change(monitor_service, sample_monitor, notific
 
         monitor_service.process_monitor(sample_monitor)
 
-    notification_service.should_and_send_notification.assert_called_once_with(sample_monitor)
+    notification_service.notify.assert_called_once_with(sample_monitor)
 
     monitor_service.log_dao.create.assert_called_once()
     log = monitor_service.log_dao.create.call_args.args[0]

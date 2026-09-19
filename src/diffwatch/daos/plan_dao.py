@@ -3,6 +3,7 @@ from typing import Optional
 from psycopg import Connection
 from psycopg.rows import class_row, scalar_row
 
+from diffwatch.core.exceptions import DiffWatchError
 from diffwatch.models.plan_model import Plan
 
 
@@ -39,7 +40,7 @@ class PlanDAO:
             plan_id = cur.fetchone()
 
             if plan_id is None:
-                raise Exception("Insert statement executed but returned no ID.")
+                raise DiffWatchError("Insert statement executed but returned no ID.")
 
             return plan_id
 

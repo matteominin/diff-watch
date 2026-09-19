@@ -8,6 +8,7 @@ from diffwatch.daos.monitor_dao import MonitorDAO
 from diffwatch.daos.check_log_dao import CheckLogDAO
 
 from diffwatch.services.notification_service import NotificationService
+from diffwatch.core.exceptions import UserNotFoundError, PlanNotFoundError, ValidationError
 
 class MonitorService:
     def __init__(self, monitor_dao: MonitorDAO, notification_service: NotificationService,log_dao: CheckLogDAO) -> None:
@@ -17,7 +18,7 @@ class MonitorService:
 
     def process_monitor(self, monitor: Monitor) -> None:
         if monitor.id is None:
-            return # TODO: error handling
+            raise ValidationError("Monitor id can't be None")
 
         now = datetime.now(timezone.utc)
         result = check(str(monitor.url), monitor.selector)
@@ -25,8 +26,12 @@ class MonitorService:
         has_changed = (result.status == CheckStatus.OK and result.hash != monitor.hash)
 
         has_notified = False
-        if has_changed: 
-            has_notified = self.notification_service.should_and_send_notification(monitor)
+        try:
+            if has_changed: 
+                has_notified = self.notification_service.notify(monitor)
+        except (UserNotFoundError, PlanNotFoundError) as ex: 
+            # TODO log
+            pass
 
         next_check_at = now + timedelta(minutes=monitor.check_freq)
         new_hash = result.hash if result.hash is not None else monitor.hash
@@ -46,7 +51,7 @@ class MonitorService:
             prev_hash=monitor.hash,
             next_hash=result.hash,
             response_time=0.0, # TODO: calculate real response time
-            error_message=result.error if hasattr(result, 'error') else None,
+            error_message=result.error,
             created_at=now
         )
 
