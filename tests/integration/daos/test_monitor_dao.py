@@ -100,6 +100,13 @@ def test_get_by_user_id(db_conn, insert_test_data):
     assert len(results) == 3
     assert all(monitor.user_id == user.id for monitor in results)
 
+def test_count_active_by_user_id(db_conn, insert_test_data):
+    users = insert_test_data["users"]
+    dao = MonitorDAO(db_conn)
+
+    assert dao.count_active_by_user_id(users[0].id) == 3
+    assert dao.count_active_by_user_id(users[1].id) == 1
+
 def test_update_monitor(db_conn, insert_test_data):
     monitor = insert_test_data["monitors"][0]
     dao = MonitorDAO(db_conn)

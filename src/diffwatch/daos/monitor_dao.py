@@ -51,6 +51,16 @@ class MonitorDAO:
             cur.execute(query, (user_id,))
             return cur.fetchall()
 
+    def count_active_by_user_id(self, user_id: UUID) -> int:
+        query = """
+            SELECT COUNT(*)
+            FROM monitors
+            WHERE user_id = %s AND is_active = TRUE
+        """
+        with self.conn.cursor(row_factory=scalar_row) as cur:
+            cur.execute(query, (user_id,))
+            return cur.fetchone() or 0
+
     def get_waiting_monitors(self, limit: int = 100) -> list[Monitor]:
         query = """
             SELECT * FROM monitors

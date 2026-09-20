@@ -12,7 +12,9 @@ from pydantic import HttpUrl
 
 from diffwatch.core.checker import CheckStatus, parse_and_hash
 from diffwatch.models.monitor_model import Monitor
+from diffwatch.models.plan_model import Plan
 from diffwatch.services.monitor_service import MonitorService
+from diffwatch.core.exceptions import PlanNotFoundError, ValidationError
 
 FIXTURE_DIR = Path(__file__).parent.parent.parent / "fixtures" / "html_samples"
 def _load_fixture(filename: str) -> str:
@@ -39,8 +41,71 @@ def monitor_service(notification_service):
     return MonitorService(
         monitor_dao=MagicMock(),
         notification_service=notification_service,
-        log_dao=MagicMock()
+        log_dao=MagicMock(),
+        user_subscription_dao=MagicMock()
     )
+
+@pytest.fixture
+def create_monitor_service(notification_service):
+    return MonitorService(
+        monitor_dao=MagicMock(),
+        notification_service=notification_service,
+        log_dao=MagicMock(),
+        user_subscription_dao=MagicMock(),
+    )
+
+def test_create_monitor_rejects_plan_limit(create_monitor_service, sample_monitor):
+    plan = Plan(
+        name="Starter",
+        max_active_monitors=2,
+        min_check_freq_minutes=5,
+        created_at=datetime.now(),
+    )
+    create_monitor_service.user_subscription_dao.get_active_plan_by_user_id.return_value = plan
+    create_monitor_service.monitor_dao.count_active_by_user_id.return_value = 2
+
+    with pytest.raises(ValidationError, match="Active monitor limit reached"):
+        create_monitor_service.create_monitor(sample_monitor)
+
+    create_monitor_service.monitor_dao.create.assert_not_called()
+
+def test_create_monitor_without_active_plan(create_monitor_service, sample_monitor):
+    create_monitor_service.user_subscription_dao.get_active_plan_by_user_id.return_value = None
+
+    with pytest.raises(PlanNotFoundError):
+        create_monitor_service.create_monitor(sample_monitor)
+
+    create_monitor_service.monitor_dao.create.assert_not_called()
+
+def test_create_monitor_when_under_plan_limit(create_monitor_service, sample_monitor):
+    plan = Plan(
+        name="Starter",
+        max_active_monitors=2,
+        min_check_freq_minutes=5,
+        created_at=datetime.now(),
+    )
+    monitor_id = uuid4()
+    create_monitor_service.user_subscription_dao.get_active_plan_by_user_id.return_value = plan
+    create_monitor_service.monitor_dao.count_active_by_user_id.return_value = 1
+    create_monitor_service.monitor_dao.create.return_value = monitor_id
+
+    assert create_monitor_service.create_monitor(sample_monitor) == monitor_id
+    create_monitor_service.monitor_dao.create.assert_called_once_with(sample_monitor)
+
+def test_create_inactive_monitor_when_plan_limit_is_reached(create_monitor_service, sample_monitor):
+    plan = Plan(
+        name="Starter",
+        max_active_monitors=1,
+        min_check_freq_minutes=5,
+        created_at=datetime.now(),
+    )
+    monitor_id = uuid4()
+    sample_monitor.is_active = False
+    create_monitor_service.user_subscription_dao.get_active_plan_by_user_id.return_value = plan
+    create_monitor_service.monitor_dao.count_active_by_user_id.return_value = 1
+    create_monitor_service.monitor_dao.create.return_value = monitor_id
+
+    assert create_monitor_service.create_monitor(sample_monitor) == monitor_id
 
 def test_process_monitor_no_changes(monitor_service, sample_monitor, notification_service):
     html_content = _load_fixture("sample_page.html")
