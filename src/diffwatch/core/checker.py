@@ -4,6 +4,8 @@ import httpx
 from selectolax.lexbor import LexborHTMLParser
 import hashlib
 
+from diffwatch.core.logging import logger
+
 class CheckStatus(Enum):
     OK = "ok"
     BLOCKED = "blocked"
@@ -36,6 +38,7 @@ def check(url: str, selector: str = 'body') -> CheckResult:
         res = httpx.get(url, follow_redirects=True, 
             timeout=10.0, headers={"User-Agent": "diffwatch/0.1"})
     except httpx.RequestError as e:
+        logger.warning("HTTP check failed for %s: %s", url, e)
         return CheckResult(status=CheckStatus.HTTP_ERROR, error=str(e))
 
     if res.status_code in (401, 403, 429):

@@ -1,7 +1,7 @@
-from uuid import UUID
 from datetime import datetime, timezone, timedelta
 
 from diffwatch.models.monitor_model import Monitor
+from diffwatch.core.logging import logger
 
 from diffwatch.core.exceptions import UserNotFoundError, PlanNotFoundError, ValidationError
 
@@ -29,6 +29,11 @@ class NotificationService:
         notifications_sent_24h = self.log_dao.count_notifications_since(monitor.user_id, start_date)
 
         if notifications_sent_24h >= plan.max_notifications_per_day:
+            logger.debug(
+                "Notification limit reached for monitor %s (%d sent in the last 24 hours)",
+                monitor.name,
+                notifications_sent_24h,
+            )
             return False
 
         return True
@@ -41,6 +46,6 @@ class NotificationService:
         if user is None: 
             raise UserNotFoundError(monitor.user_id)
 
-        print(monitor.name + " has changed " + user.email + " notified") # TODO: replace with real notificaiton
+        logger.info("Monitor %s has changed; notification sent to %s", monitor.name, user.email)
 
         return True

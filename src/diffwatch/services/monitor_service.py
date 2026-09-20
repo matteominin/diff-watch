@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from diffwatch.models.monitor_model import Monitor
 from diffwatch.models.check_log_model import CheckLog
 from diffwatch.core.checker import check, CheckStatus
+from diffwatch.core.logging import logger
 
 from diffwatch.daos.monitor_dao import MonitorDAO
 from diffwatch.daos.check_log_dao import CheckLogDAO
@@ -23,15 +24,22 @@ class MonitorService:
         now = datetime.now(timezone.utc)
         result = check(str(monitor.url), monitor.selector)
 
+        if result.status != CheckStatus.OK:
+            logger.warning(
+                "Monitor %s check failed with status %s: %s",
+                monitor.name,
+                result.status.value,
+                result.error or "no details",
+            )
+
         has_changed = (result.status == CheckStatus.OK and result.hash != monitor.hash)
 
         has_notified = False
         try:
             if has_changed: 
                 has_notified = self.notification_service.notify(monitor)
-        except (UserNotFoundError, PlanNotFoundError) as ex: 
-            # TODO log
-            pass
+        except (UserNotFoundError, PlanNotFoundError) as ex:
+            logger.warning("Skipping notification for monitor %s: %s", monitor.name, ex)
 
         next_check_at = now + timedelta(minutes=monitor.check_freq)
         new_hash = result.hash if result.hash is not None else monitor.hash
