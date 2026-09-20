@@ -15,7 +15,7 @@ class NotificationService:
         self.log_dao = log_dao
         self.user_dao = user_dao
 
-    def should_notify(self, monitor: Monitor) -> bool:
+    def _should_notify(self, monitor: Monitor) -> bool:
         if monitor.id is None:
             raise ValidationError("Monitor id can't be None")
 
@@ -39,7 +39,7 @@ class NotificationService:
         return True
 
     def notify(self, monitor: Monitor) -> bool:
-        if not self.should_notify(monitor):
+        if not self._should_notify(monitor):
             return False
 
         user = self.user_dao.get_by_id(monitor.user_id)
