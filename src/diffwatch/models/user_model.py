@@ -5,8 +5,8 @@ from pydantic import BaseModel, EmailStr, field_serializer
 
 class User(BaseModel):
     id: Optional[UUID] = None
-    email: EmailStr
     name: Optional[str] = None
+    email: EmailStr
     created_at: datetime
 
     @field_serializer("created_at")

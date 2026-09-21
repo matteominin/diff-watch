@@ -17,3 +17,7 @@ class UserNotFoundError(NotFoundError):
 class PlanNotFoundError(NotFoundError):
     def __init__(self, user_id: UUID) -> None:
         super().__init__(f"Plan not found for user: {user_id}")
+
+class MonitorNotFoundError(NotFoundError):
+    def __init__(self, id: UUID) -> None:
+        super().__init__(f"Monitor not found: {id}")

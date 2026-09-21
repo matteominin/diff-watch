@@ -11,7 +11,7 @@ from diffwatch.daos.check_log_dao import CheckLogDAO
 from diffwatch.daos.user_subscription_dao import UserSubscriptionDAO
 
 from diffwatch.services.notification_service import NotificationService
-from diffwatch.core.exceptions import UserNotFoundError, PlanNotFoundError, ValidationError
+from diffwatch.core.exceptions import UserNotFoundError, PlanNotFoundError, ValidationError, MonitorNotFoundError
 
 class MonitorService:
     def __init__(
@@ -40,11 +40,20 @@ class MonitorService:
 
         return self.monitor_dao.create(monitor)
 
-    def process_monitor(self, monitor: Monitor) -> None:
-        if monitor.id is None:
-            raise ValidationError("Monitor id can't be None")
+    def _get_monitor_by_id(self, id: UUID) -> Monitor:
+        monitor = self.monitor_dao.get_by_id(id)
+        if monitor is None:
+            raise MonitorNotFoundError(id)
 
+        return monitor
+
+    def process_monitor(self, id: UUID) -> None:
         now = datetime.now(timezone.utc)
+
+        monitor = self._get_monitor_by_id(id)
+        if monitor.id is None:
+            raise ValidationError("Monitor should have a valid id")
+        
         result = check(str(monitor.url), monitor.selector)
 
         if result.status != CheckStatus.OK:
@@ -59,7 +68,7 @@ class MonitorService:
 
         has_notified = False
         try:
-            if has_changed: 
+            if has_changed and monitor.hash is not None: 
                 has_notified = self.notification_service.notify(monitor)
         except (UserNotFoundError, PlanNotFoundError) as ex:
             logger.warning("Skipping notification for monitor %s: %s", monitor.name, ex)
